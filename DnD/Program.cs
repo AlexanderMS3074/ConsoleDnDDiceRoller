@@ -55,27 +55,35 @@ namespace DnD {
         }
 
         static void GetNumberOfDice(string _input) {
-            if (int.TryParse(_input[0].ToString(), out int _n)) { numberOfDice = _n; }
-            else { numberOfDice = 1; }
+            Regex parseNumberOfDice = new Regex(@"\d*d");
+            Match matchNumberOfDice = parseNumberOfDice.Match(_input);
+
+            if (int.TryParse(matchNumberOfDice.ToString().Remove(matchNumberOfDice.Length - 1), out int _n)) {
+                NumberOfDice = _n;
+            }
+            else { NumberOfDice = 1; }
         }
 
         static void GetNumberOfDiceSides(string _input) {
-            Regex _parseDiceSides = new Regex(@"[d]\d+");
-            Match _matchDiceSides = _parseDiceSides.Match(_input);
-            if (int.TryParse(_matchDiceSides.ToString().Substring(1), out int _n)) { DiceSides = _n; }
+            Regex parseDiceSides = new Regex(@"[d]\d+");
+            Match matchDiceSides = parseDiceSides.Match(_input);
+
+            if (int.TryParse(matchDiceSides.ToString().Substring(1), out int _n)) {
+                DiceSides = _n;
+            }
             else { DiceSides = int.MaxValue; }
         }
 
         static void GetModifier(string _input) {
-            Regex _parseModifier = new Regex(@"(\-|\+)\d+");
-            Match _matchModifier = _parseModifier.Match(_input);
-            if (_matchModifier.ToString() == string.Empty) {
+            Regex parseModifier = new Regex(@"(\-|\+)\d+");
+            Match matchModifier = parseModifier.Match(_input);
+            if (matchModifier.ToString() == string.Empty) {
                 Modifier = '+';
                 ModifierAmount = 0;
             }
             else {
-                Modifier = _matchModifier.ToString()[0];
-                if (int.TryParse(_matchModifier.ToString().Substring(1), out int n)) { ModifierAmount = n; }
+                Modifier = matchModifier.ToString()[0];
+                if (int.TryParse(matchModifier.ToString().Substring(1), out int n)) { ModifierAmount = n; }
                 else {
                     Modifier = '`';
                     ModifierAmount = int.MinValue;
@@ -113,32 +121,37 @@ namespace DnD {
         }
 
         static void RollMultipleDice() {
-            List<int> diceRolls = new List<int>();
+            int diceRollsTotal = 0;
             for(int i = 0; i < NumberOfDice; i++) {
-                diceRolls.Add(RollDice(DiceSides));
+                diceRollsTotal += RollDice(DiceSides);
             }
-
+            switch (Modifier) {
+                case '+':
+                    FinalResult = diceRollsTotal + ModifierAmount;
+                    break;
+                case '-':
+                    FinalResult = diceRollsTotal - ModifierAmount;
+                    break;
+                case '`':
+                    Console.WriteLine("Something failed on the way to GetModifier and DetectErrors didn't catch it");
+                    break;
+            }
         }
 
         static void Roll() {
-            Console.WriteLine("Enter Your Roll:");
+            Console.Write("Enter Your Roll: ");
             string notation = Console.ReadLine();
 
             Parse(notation);
             DetectErrors();
 
-            int roll = RollDice(DiceSides);
-
             if (NumberOfDice == 1) {
                 RollSingleDice();
             }
             else {
-                //TODO Finish RollMultipleDice
+                RollMultipleDice();
             }
-
-            Console.WriteLine(roll);
-            Console.WriteLine(Modifier);
-            Console.WriteLine(FinalResult);
+            Console.WriteLine("Result: {0}", FinalResult);
 
             RollAgain();
         }
