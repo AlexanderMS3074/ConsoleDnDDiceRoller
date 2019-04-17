@@ -38,20 +38,20 @@ namespace DnD {
         }
 
         static byte RollDice(int _intSides) {
-            byte _numSides = Convert.ToByte(_intSides);
+            byte numSides = Convert.ToByte(_intSides);
 
-            if (_numSides <= 0) { throw new ArgumentOutOfRangeException("RollDice parameter out of range: _numSides"); }
+            if (numSides <= 0) { throw new ArgumentOutOfRangeException("RollDice parameter out of range: _numSides"); }
 
-            byte[] _randomNum = new byte[1];
-            do { rngCSP.GetBytes(_randomNum); }
-            while (!IsFairRoll(_randomNum[0], _numSides));
+            byte[] randomNum = new byte[1];
+            do { rngCSP.GetBytes(randomNum); }
+            while (!IsFairRoll(randomNum[0], numSides));
 
-            return (byte)((_randomNum[0] % _numSides) + 1);
+            return (byte)((randomNum[0] % numSides) + 1);
         }
 
-        static bool IsFairRoll(byte _roll, byte _numSides) {
-            int _fullSetsOfValues = byte.MaxValue / _numSides;
-            return _roll < _numSides * _fullSetsOfValues;
+        static bool IsFairRoll(byte roll, byte _numSides) {
+            int fullSetsOfValues = byte.MaxValue / _numSides;
+            return roll < _numSides * fullSetsOfValues;
         }
 
         static void GetNumberOfDice(string _input) {
@@ -84,17 +84,18 @@ namespace DnD {
         }
 
         static void DetectErrors() {
-            if(DiceSides == int.MaxValue) { Console.WriteLine("Something failed up on the way to GetNumberOfDiceSides"); }
-            if(Modifier == '`') { Console.WriteLine("Something failed up on the way to GetModifier"); }
+            if(DiceSides == int.MaxValue) { Console.WriteLine("Something failed on the way to GetNumberOfDiceSides"); }
+            if(Modifier == '`') { Console.WriteLine("Something failed on the way to GetModifier"); }
         }
 
         static void Parse(string _rawNotation) {
-            string _notation = _rawNotation.ToLower();
-            _notation = _rawNotation.Replace(" ", string.Empty);
+            string notation = _rawNotation.ToLower();
+            notation = _rawNotation.Replace(" ", string.Empty);
 
-            GetNumberOfDice(_notation);
-            GetNumberOfDiceSides(_notation);
-            GetModifier(_notation);
+            GetNumberOfDice(notation);
+            GetNumberOfDiceSides(notation);
+            GetModifier(notation);
+            DetectErrors();
         }
 
         static void RollSingleDice() {
@@ -106,7 +107,7 @@ namespace DnD {
                     FinalResult = RollDice(DiceSides) - ModifierAmount;
                     break;
                 case '`':
-                    Console.WriteLine("Something failed up on the way to GetModifier and DetectErrors didn't catch it");
+                    Console.WriteLine("Something failed on the way to GetModifier and DetectErrors didn't catch it");
                     break;
             }
         }
@@ -116,6 +117,7 @@ namespace DnD {
             for(int i = 0; i < NumberOfDice; i++) {
                 diceRolls.Add(RollDice(DiceSides));
             }
+
         }
 
         static void Roll() {
@@ -128,7 +130,7 @@ namespace DnD {
             int roll = RollDice(DiceSides);
 
             if (NumberOfDice == 1) {
-                //TODO Finish RollSingleDice
+                RollSingleDice();
             }
             else {
                 //TODO Finish RollMultipleDice
