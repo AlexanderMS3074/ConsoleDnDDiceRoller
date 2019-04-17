@@ -34,20 +34,22 @@ namespace DnD {
         }
 
         static void Main(string[] args) {
-            Console.WriteLine("Modifiers other than + or - result in a +0");
+            PrintIntro();
             Roll();
         }
 
-        static byte RollDice(int _intSides) {
-            byte numSides = Convert.ToByte(_intSides);
+        static void PrintIntro() {
+            Console.WriteLine("Modifiers other than + or - result in a +0");
+        }
 
-            if (numSides <= 0) { throw new ArgumentOutOfRangeException("RollDice parameter out of range: _numSides"); }
-
+        static int RollDice(int _sides) {
+            byte numSides = Convert.ToByte(_sides);
             byte[] randomNum = new byte[1];
+                
             do { rngCSP.GetBytes(randomNum); }
             while (!IsFairRoll(randomNum[0], numSides));
 
-            return (byte)((randomNum[0] % numSides) + 1);
+            return (randomNum[0] % numSides) + 1;
         }
 
         static bool IsFairRoll(byte roll, byte _numSides) {
@@ -67,32 +69,47 @@ namespace DnD {
             Regex parseNumberOfDice = new Regex(@"\d*d");
             Match matchNumberOfDice = parseNumberOfDice.Match(_input);
 
-            if (int.TryParse(matchNumberOfDice.ToString().Remove(matchNumberOfDice.Length - 1), out int _n)) {
-                NumberOfDice = _n;
+            if (long.TryParse(matchNumberOfDice.ToString().Remove(matchNumberOfDice.Length - 1), out long n)) {
+                if (n > 255) {
+                    Console.WriteLine("Number Of Dice Excedes Max Value");
+                    Console.WriteLine("Number Of Dice Has Been Set To 255");
+                    NumberOfDice = 255;
+                }
+                else { NumberOfDice = (int)n; }
             }
             else { NumberOfDice = 1; }
         }
 
-        static void GetNumberOfDiceSides(string _input) {
+        static void GetDiceSides(string _input) {
             Regex parseDiceSides = new Regex(@"[d]\d+");
             Match matchDiceSides = parseDiceSides.Match(_input);
 
-            if (int.TryParse(matchDiceSides.ToString().Substring(1), out int _n)) {
-                DiceSides = _n;
+            if (long.TryParse(matchDiceSides.ToString().Substring(1), out long n)) {
+                if (n <= 1) {
+                    DiceSides = 2;
+                }
+                if (n > 255) {
+                    Console.WriteLine("Dice Sides Excedes Max Value");
+                    Console.WriteLine("Dice Sides Has Been Set To 255");
+                    DiceSides = 255;
+                }
+                else { DiceSides = (int)n; }
             }
-            else { DiceSides = int.MaxValue; }
+            else { DiceSides = int.MinValue; }
         }
 
         static void GetModifier(string _input) {
             Regex parseModifier = new Regex(@"(\-|\+)\d+");
             Match matchModifier = parseModifier.Match(_input);
-            if (matchModifier.ToString() == string.Empty) {
+
+            if (matchModifier.ToString() == string.Empty) { //catches both improper and nonexistant modifiers
                 Modifier = '+';
                 ModifierAmount = 0;
             }
             else {
                 Modifier = matchModifier.ToString()[0];
-                if (int.TryParse(matchModifier.ToString().Substring(1), out int n)) { ModifierAmount = n; }
+                //TODO ensure a maximum value on the modifier
+                if (long.TryParse(matchModifier.ToString().Substring(1), out long n)) { ModifierAmount = (int)n; }
                 else {
                     Modifier = '`';
                     ModifierAmount = int.MinValue;
@@ -100,16 +117,24 @@ namespace DnD {
             }
         }
 
-        static void DetectErrors() {
-            if(DiceSides == int.MaxValue) { Console.WriteLine("Something failed on the way to GetNumberOfDiceSides"); }
-            if(Modifier == '`') { Console.WriteLine("Something failed on the way to GetModifier"); }
+        static bool IsErrors() {
+            if(DiceSides == int.MinValue) {
+                Console.WriteLine("Error: GetDiceSides Was Unable to Parse");
+                return true;
+            }
+            if(Modifier == '`') {
+                Console.WriteLine("Error: GetModifier Was Unable to Parse");
+                return true;
+            }
+            else {
+                return false;
+            }
         }
 
         static void Parse(string _notation) {
             GetNumberOfDice(_notation);
-            GetNumberOfDiceSides(_notation);
+            GetDiceSides(_notation);
             GetModifier(_notation);
-            DetectErrors();
         }
 
         static void RollSingleDice() {
@@ -161,25 +186,25 @@ namespace DnD {
             string notation = Console.ReadLine();
             notation = notation.ToLower();
             notation = notation.Replace(" ", string.Empty);
-
             if (IsDnDNotation(notation)) {
                 Parse(notation);
-                DetectErrors();
 
-                if (NumberOfDice == 1) {
-                    RollSingleDice();
+                if (!IsErrors()) {
+                    if (NumberOfDice == 1) {
+                        RollSingleDice();
+                    }
+                    else {
+                        RollMultipleDice();
+                    }
+                    Console.WriteLine("Result: {0}", FinalResult);
+
+                    RollAgain();
                 }
                 else {
-                    RollMultipleDice();
+                    Console.WriteLine("\nPlease Use Proper DnD Notation");
+                    Console.WriteLine("Examples: '2d20' or 'd100' or '3d8-3'");
+                    RollAgain();
                 }
-                Console.WriteLine("Result: {0}", FinalResult);
-
-                RollAgain();
-            }
-            else {
-                Console.WriteLine("\nPlease Use Proper DnD Notation");
-                Console.WriteLine("Examples: '2d20' or 'd100' or '3d8-3'");
-                RollAgain();
             }
         }
     }
