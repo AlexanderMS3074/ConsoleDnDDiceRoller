@@ -148,6 +148,7 @@ namespace DnD {
             Console.Write("\nEnter Y to continue or press Enter to quit: ");
             string _ans = Console.ReadLine();
             if (_ans == "y" || _ans == "Y") {
+                Console.WriteLine("");
                 Roll();
             }
             else {
