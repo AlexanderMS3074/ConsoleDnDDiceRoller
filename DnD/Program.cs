@@ -144,15 +144,6 @@ namespace DnD {
             Console.WriteLine(Modifier);
             Console.WriteLine(FinalResult);
 
-            //int[] _parsedRoll = ParseRoll();
-            //int _numDice = _parsedRoll[0];
-            //int _numSides = _parsedRoll[1];
-
-            //int[] _rolls = new int[_numDice];
-
-            //for (int i = 0; i < _rolls.Length; i++) { _rolls[i] = RollDice((byte)_numSides); }
-            //for (int e = 0; e < _rolls.Length; e++) { Console.WriteLine("Roll {0}: {1}", e + 1, _rolls[e]); }
-
             RollAgain();
         }
 
