@@ -84,8 +84,8 @@ namespace DnD {
         }
 
         static void DetectErrors() {
-            if(DiceSides == int.MaxValue) { Console.WriteLine("Something fucked up on the way to GetNumberOfDiceSides"); }
-            if(Modifier == '`') { Console.WriteLine("Something fucked up on the way to GetModifier"); }
+            if(DiceSides == int.MaxValue) { Console.WriteLine("Something failed up on the way to GetNumberOfDiceSides"); }
+            if(Modifier == '`') { Console.WriteLine("Something failed up on the way to GetModifier"); }
         }
 
         static void Parse(string _rawNotation) {
@@ -95,12 +95,6 @@ namespace DnD {
             GetNumberOfDice(_notation);
             GetNumberOfDiceSides(_notation);
             GetModifier(_notation);
-
-            //Console.WriteLine("_notation.......: {0}", _notation);
-            //Console.WriteLine("_numberOfDice...: {0}", DiceNumber);
-            //Console.WriteLine("_numberOfSides..: {0}", DiceSides);
-            //Console.WriteLine("_modifier.......: {0}", Modifier);
-            //Console.WriteLine("_modifierAmount.: {0}", ModifierAmount);
         }
 
         static void RollSingleDice() {
@@ -112,7 +106,7 @@ namespace DnD {
                     FinalResult = RollDice(DiceSides) - ModifierAmount;
                     break;
                 case '`':
-                    Console.WriteLine("Something fucked up on the way to GetModifier and DetectErrors didn't catch it");
+                    Console.WriteLine("Something failed up on the way to GetModifier and DetectErrors didn't catch it");
                     break;
             }
         }
