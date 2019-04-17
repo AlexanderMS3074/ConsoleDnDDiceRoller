@@ -34,6 +34,7 @@ namespace DnD {
         }
 
         static void Main(string[] args) {
+            Console.WriteLine("Modifiers other than + or - result in a +0");
             Roll();
         }
 
@@ -52,6 +53,14 @@ namespace DnD {
         static bool IsFairRoll(byte roll, byte _numSides) {
             int fullSetsOfValues = byte.MaxValue / _numSides;
             return roll < _numSides * fullSetsOfValues;
+        }
+
+        static bool IsDnDNotation(string _input) {
+            Regex parseInput = new Regex(@"\d*d\d+");
+            Match matchNotation = parseInput.Match(_input);
+
+            if (matchNotation.ToString() == string.Empty) { return false; }
+            else { return true; }
         }
 
         static void GetNumberOfDice(string _input) {
@@ -96,13 +105,10 @@ namespace DnD {
             if(Modifier == '`') { Console.WriteLine("Something failed on the way to GetModifier"); }
         }
 
-        static void Parse(string _rawNotation) {
-            string notation = _rawNotation.ToLower();
-            notation = _rawNotation.Replace(" ", string.Empty);
-
-            GetNumberOfDice(notation);
-            GetNumberOfDiceSides(notation);
-            GetModifier(notation);
+        static void Parse(string _notation) {
+            GetNumberOfDice(_notation);
+            GetNumberOfDiceSides(_notation);
+            GetModifier(_notation);
             DetectErrors();
         }
 
@@ -138,31 +144,41 @@ namespace DnD {
             }
         }
 
-        static void Roll() {
-            Console.Write("Enter Your Roll: ");
-            string notation = Console.ReadLine();
-
-            Parse(notation);
-            DetectErrors();
-
-            if (NumberOfDice == 1) {
-                RollSingleDice();
-            }
-            else {
-                RollMultipleDice();
-            }
-            Console.WriteLine("Result: {0}", FinalResult);
-
-            RollAgain();
-        }
-
         static void RollAgain() {
-            Console.WriteLine("Enter Y to continue or press Enter to quit");
+            Console.Write("\nEnter Y to continue or press Enter to quit: ");
             string _ans = Console.ReadLine();
             if (_ans == "y" || _ans == "Y") {
                 Roll();
-            } else {
+            }
+            else {
                 Environment.Exit(0);
+            }
+        }
+
+        static void Roll() {
+            Console.Write("Enter Your Roll: ");
+            string notation = Console.ReadLine();
+            notation = notation.ToLower();
+            notation = notation.Replace(" ", string.Empty);
+
+            if (IsDnDNotation(notation)) {
+                Parse(notation);
+                DetectErrors();
+
+                if (NumberOfDice == 1) {
+                    RollSingleDice();
+                }
+                else {
+                    RollMultipleDice();
+                }
+                Console.WriteLine("Result: {0}", FinalResult);
+
+                RollAgain();
+            }
+            else {
+                Console.WriteLine("\nPlease Use Proper DnD Notation");
+                Console.WriteLine("Examples: '2d20' or 'd100' or '3d8-3'");
+                RollAgain();
             }
         }
     }
